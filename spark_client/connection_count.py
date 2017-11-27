@@ -49,18 +49,19 @@ connection_counts.show(20)
 connection_counts.createOrReplaceTempView('connection_counts')
 
 
-avg_connections = spark.sql(
+connection_stats = spark.sql('''
 
-    'SELECT COUNT(*), AVG(n_connections) FROM connection_counts'
+SELECT
+    COUNT(*)                     AS count,
+    AVG(n_connections)           AS mean_connections,
+    SQRT(VAR_POP(n_connections)) AS stdev_connections
+FROM connection_counts
 
-).collect()[0]
-
+''').collect()[0]
 
 msg = '''
 {0} ids in the dataset,
-with an average connection count of {1}.
-'''.format(*avg_connections)
+with an average connection count of {1:.1f} +/- {2:.1f}.
+'''.format(*connection_stats)
 
 print(msg)
-
-spark.stop()
