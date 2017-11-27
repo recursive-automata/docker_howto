@@ -6,6 +6,9 @@ conf = SparkConf().setAppName('count_connections').setMaster('local[*]')
 sc = SparkContext(conf=conf)
 spark = SparkSession(sc)
 
+# generate a synthetic graph by taking 1% of all
+# possible connections between 1000 vertices
+
 x = spark.range(1000)
 x_1 = x.select(col('id').alias('id_1'))
 x_2 = x.select(col('id').alias('id_2'))
@@ -21,6 +24,7 @@ connections.cache()
 connections.show(20)
 connections.createOrReplaceTempView('connections')
 
+# perform analytics on the graph
 
 connection_counts = spark.sql('''
 
@@ -60,4 +64,3 @@ with an average connection count of {1}.
 print(msg)
 
 spark.stop()
-
